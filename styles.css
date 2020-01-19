@@ -1,25 +1,83 @@
- #add_assignment {    
-    border:0px;
+@import url('http://fonts.googleapis.com/css?family=Cedarville+Cursive&display=swap');
+ 
+#add_assignment {    
+    border-width:0px;
     color:#FFF;
     background-color:#282936;
-    border-radius: 1.2rem;
+    border-radius: 1.625rem;
     font-family: 'Arial';
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 2.5px;
+    cursor:pointer;
+ 
 }
-
-#final_calculator {
+ 
+#final_calculator{    
     border:0px;
     color:#FFF;
     background-color:#282936;
-    border-radius: 1.2rem;
-    font-family: 'Arial';
+    border-radius: 1.625rem;
     margin-top: 5px;
     margin-bottom: 5px;
-    margin-right: 2.5px;
+    margin-left:2.5px;
+    font-family: "Arial";
+    cursor:pointer;
 }
-
+ 
+#assignment_category  {
+    background-color:#424242;
+    width:100px;
+    height:30px;
+    font-size:15px;
+    color:#FFFFFF;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    text-align:left;
+}
+ 
 .userscores {
-  width: 50px;
+    width: 50px;
+}
+  
+textarea:focus, input:focus {
+    color: #000000;
+}
+ 
+#user_score {
+    background-color: #000000;
+    border-width:1px;
+    color:white;
+    border-radius:1.625rem;
+}
+ 
+#max_score {
+    background-color: #000000;
+    border-width:1px;
+    color:white;
+    border-radius:1.625rem;
+}
+ 
+#delete{
+    width:160px;
+    height:20px;
+    border-width: 0px;
+    /*border-color:#E94B3CFF;*/
+    background-color:#2D2926FF;
+    color:white;
+    cursor:pointer;
+    border-radius:1.625rem;
+    align:right;
+    margin-left:5px;
+}
+ 
+#finaltext {
+    font-size: 50px;
+}
+ 
+#final_weight {
+    width:75px;
+}
+ 
+#final_grade {
+    width:50px;
 }

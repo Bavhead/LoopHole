@@ -3,21 +3,19 @@ const ADD_ASSIGNMENT_SELECTOR = '#container_content > div > div.content_spacing_
 const ASSIGNMENT_SCORES_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)';
 const PERCENT_GRADE_SELECTOR = "#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)";
 const LETTER_GRADE_SELECTOR = "#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)";
-
 const CATEGORIES_SELECTOR = "#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)";
 const IS_WEIGHTED_SELECTOR = "#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(1) > td:nth-child(2)";
 const IS_WEIGHTED = $(IS_WEIGHTED_SELECTOR).text() == "Weight:";
-
-
 const NEW_ASSIGNMENT_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(1)';
 const CATEGORIES_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)';
-
+ 
 var categories = {};
 var categoriesNames = [];
 var categoriesEarned = {};
 var categoriesPoss = {};
 var percentGrade = 0;
 var letterGrade = "";
+var finalBoolean = true;
 var gradeScale = {
     "A+": 0.97,
     "A": 0.93,
@@ -38,16 +36,16 @@ var percentGradeAfterFinal = 0;
 var finalGradeForTarget = 0;
 var numNewAssignments = 0;
 var shouldBeEdited = true;
-
-
+ 
+ 
 // Need to be called at this point
 setCategories();
 setAssignments();
 getOriginalGrade();
 calcGrade();
 calcLetterGrade();
-
-
+ 
+ 
 function setCategories(){
     if (IS_WEIGHTED) {
         $(CATEGORIES_SELECTOR).each(function () {
@@ -69,14 +67,45 @@ function setCategories(){
         categoriesPoss["---"] = [];
     }
 }
-
-
+ 
+ 
+var final = `
+<tr id = "final">
+ 
+<td>
+    <text id = "finalText">Final</text>
+</td>
+ 
+<td style="width:100%;"> Weight : <br>
+    <input type = "final_weight" placeholder = "20" maxlength = "3" name = 'final_weight' id = "final_weight" style="width: 50px"></input> %
+</td>
+ 
+<td>
+    ${getDate()}
+<br>
+</td>
+<td nowrap="">
+    <div>
+        Score:
+ 
+    </div>
+    <div> <input type="number" id="final_user_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
+        / 
+    <input type="number" id="final_max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> 
+    
+</td>
+    
+<td>
+</td> 
+ 
+</tr> `;
+ 
 var name1 = `
 <tr>
-
+ 
 <td>
     <div class="float_l padding_r5" style="min-width: 105px;"> </div>
-
+ 
     <select id="assignment_categories">
         ${getOptions()}
     </select>
@@ -85,9 +114,9 @@ var name1 = `
         <input type="text" id="assignment" placeholder="Assignment Name"> </input>
     </div>
 </td>
-
+ 
 <td style="width:100%;"> </td>
-
+ 
 <td>
     ${getDate()}
 <br>
@@ -95,25 +124,25 @@ var name1 = `
 <td nowrap="">
     <div>
         Score:
-
+ 
     </div>
     <div> <input type="number" name="user_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
         / 
     <input type="number" name="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> 
     
 </td>
-
+ 
 <td class="list_text">
     <div style="width: 125px;"> </div>
 </td> 
-
+ 
 </tr> `;
 var name2 = `
 <tr class = "highlight">
-
+ 
 <td>
     <div class="float_l padding_r5" style="min-width: 105px;"> </div>
-
+ 
     <select id="assignment_categories">
         ${getOptions()}
     </select>
@@ -122,9 +151,9 @@ var name2 = `
         <input type="text" id="assignment" placeholder="Assignment Name"> </input>
     </div>
 </td>
-
+ 
 <td style="width:100%;"> </td>
-
+ 
 <td>
     ${getDate()}
 <br>
@@ -132,20 +161,19 @@ var name2 = `
 <td nowrap="">
     <div>
         Score:
-
+ 
     </div>
     <div> <input type="number" name="user_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
         / 
     <input type="number" name="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> 
     
 </td>
-
-<td class="list_text">
+ 
     <div style="width: 125px;"> </div>
-</td> 
-
+ 
+ 
 </tr> `;
-
+ 
 function getOptions() {
     var result = "";
     for (var i = 0; i < categoriesNames.length; i++) {
@@ -153,18 +181,18 @@ function getOptions() {
     }
     return result;
 }
-
+ 
 function getDate()
 {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0');
     var yy = today.getFullYear().toString().substring(2, 4);
-
+ 
     today = mm + '/' + dd + '/' + yy;
     return today;
 }
-
+ 
 function setAssignments(){
     $(ASSIGNMENT_TABLE_SELECTOR +' > tr').not('#menu_assignment').each(function(){
         var assignmentText = $(this).find('td:nth-child(4)').text();
@@ -197,7 +225,7 @@ function setAssignments(){
         }
     });
 }
-
+ 
 function setGradeScale(){
     $(GRADE_SCALE_SELECTOR +' > tr').not('#menu_assignment').each(function(){
         for (var i = 1; i <= 2; i++){
@@ -212,7 +240,7 @@ function setGradeScale(){
         }
     })
 }
-
+ 
 function getOriginalGrade(){
     var grade = $(PERCENT_GRADE_SELECTOR).text().trim();
     if (typeof grade != "undefined"){
@@ -220,7 +248,7 @@ function getOriginalGrade(){
         originalGrade = parseFloat(grade.substring(0, percentIndex))/100;
     }
 }
-
+ 
 function calcGrade(){
     var categoriesAvgs = {};
     for (cat in categoriesEarned){
@@ -236,12 +264,12 @@ function calcGrade(){
     }
     percentGrade = scoreSum / weightSum;
 }
-
+ 
 function addAssignment(category, earnedPts, possPts){
     categoriesEarned[category].push(earnedPts);
     categoriesPoss[category].push(possPts);
 }
-
+ 
 function removeAssignment(category, index){
     for (var i = index; i < categoriesEarned.length - 1; i++){
         categoriesEarned[category][i] = categoriesEarned[category][i+1];
@@ -252,7 +280,7 @@ function removeAssignment(category, index){
     }
     categoriesPoss[category].pop();
 }
-
+ 
 function sum(array){
     var sum = 0;
     for (var i = 0; i < array.length; i++){
@@ -262,7 +290,7 @@ function sum(array){
     }
     return sum;
 }
-
+ 
 function getEarnedPts(text){
     text = text.trim();
     spaceIdx = text.indexOf("\n");
@@ -270,22 +298,22 @@ function getEarnedPts(text){
     var slashIdx = text.indexOf("/");
     return parseFloat(text.substring(0, slashIdx - 1).trim());
 }
-
+ 
 function getPossPts(text){
     text = text.trim();
     var slashIdx = text.indexOf("/");
     var equalsIdx = text.indexOf("=");
     return parseFloat(text.substring(slashIdx + 2, equalsIdx - 1).trim());
 }
-
+ 
 function calcGradeAfterFinal(weight, earnedPts, possPts){
-    percentGradeAfterFinal = (1 - weight)*percentGrade + weight*(earnedPts/possPts);
+    percentGrade = (1 - weight)*percentGrade + weight*(earnedPts/possPts);
 }
-
+ 
 function calcFinalForGrade(weight, target){
     finalGradeForTarget = (target - (1 - weight)*percentGrade)/weight;
 }
-
+ 
 function calcLetterGrade(){
     if (percentGrade >= gradeScale["F"]){
         letterGrade = "F";
@@ -339,7 +367,8 @@ function createAddAssignmentButton(location) {
     addAssignmentButton.css('float', 'left');
     $(location).prepend(addAssignmentButton);
 }
-
+ 
+ 
 function createFinalCalculatorButton(location){
     var addFinalCalculator = $('<input/>', { type: 'button',
                                                 id: 'final_calculator',
@@ -350,7 +379,7 @@ function createFinalCalculatorButton(location){
     addFinalCalculator.css('float', 'left');
     $(location).prepend(addFinalCalculator);
 }
-
+ 
 function createEditableAssignments(path) {
     var originalScores = getOriginalScores(path);
     var userScore = originalScores[0];
@@ -367,33 +396,33 @@ function createEditableAssignments(path) {
         $(path).prepend(`<b>Original:</b>`);
     }
     $(path).find('input[name="user_score"]').val(parseFloat(userScore));
-
-
+ 
+ 
     $(path).find('input[name="max_score"]').val(parseFloat(maxScore));
-
+ 
 }
-
+ 
 function getOriginalScores(path)
 {
     path = $(path).text();
     if(path == null){
         return ["0", "0"];
     }
-
+ 
     var grade1 = path.match(/([0-9]|[" "]|[.])+((\/))/g);
     if(grade1 == null){
         return ["0", "0"];
     }
     grade1 = grade1[0];
     var actual = grade1.substring(0, grade1.length-2);
-
+ 
     var grade2 = path.match(/((\/))+([0-9]|[" "]|[.])*/g);
     grade2 = grade2[0];
     var max = grade2.substring(2, grade2.length-1);
-
+ 
     return [actual, max];
 }
-
+ 
 function updateAssignments(){
     $(ASSIGNMENT_TABLE_SELECTOR +' > tr').each(function(){
         var earnedPts = $(this).find("td:nth-child(4) > form > input[type=number]:nth-child(1)").val();
@@ -401,7 +430,10 @@ function updateAssignments(){
         var category = $(this).find("td:nth-child(1) > select").val();
         
         if (typeof category == "undefined"){
-            category = $(this).find('td:nth-child(1) > div').contents().get(0).nodeValue;
+            category = $(this).find('td:nth-child(1) > div').contents().get(0);
+            if (typeof category != "undefined"){
+                category = category.nodeValue.trim();
+            }
         }
         if (typeof earnedPts == "undefined"){
             earnedPts = $(this).find("input[name='user_score']").val();
@@ -409,7 +441,7 @@ function updateAssignments(){
         if (typeof possPts == "undefined"){
             possPts = $(this).find("input[name='max_score']").val();
         }
-        var category = category.trim();
+        
         if (categoriesNames.indexOf(category) != -1){
             earnedPts = parseFloat(earnedPts);
             possPts = parseFloat(possPts);
@@ -424,7 +456,15 @@ function updateAssignments(){
         }
     });
 }
-
+function finalC(){
+    if (!finalBoolean){
+        var actual = parseFloat(document.getElementById("final_user_score").value);
+        var max = parseFloat(document.getElementById("final_max_score").value);
+        var weight = parseFloat(document.getElementById("final_weight").value);
+ 
+        calcGradeAfterFinal(weight/100, actual, max);
+    }
+}
 //////////////////
 createFinalCalculatorButton(ADD_ASSIGNMENT_SELECTOR);
 createAddAssignmentButton(ADD_ASSIGNMENT_SELECTOR);
@@ -432,9 +472,8 @@ $(ASSIGNMENT_SCORES_SELECTOR).each(function() {
     createEditableAssignments($(this));
 });
 shouldBeEdited = !shouldBeEdited;
-
+ 
 document.getElementById("add_assignment").onclick = (event) => {
-   // document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML = name + document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML;
   
    if (numNewAssignments % 2 == 0){
         $(name1).insertBefore(NEW_ASSIGNMENT_SELECTOR);
@@ -444,13 +483,21 @@ document.getElementById("add_assignment").onclick = (event) => {
    numNewAssignments++;
    
 }
-
+ 
+document.getElementById("final_calculator").onclick = (event) => {
+    if(finalBoolean){
+            $(final).insertBefore(NEW_ASSIGNMENT_SELECTOR);
+            finalBoolean = false;
+    }
+ 
+ }
+ 
 document.onchange = (event) => {
     setCategories();
     updateAssignments();
     calcGrade();
     calcLetterGrade();
+    finalC();
     $(PERCENT_GRADE_SELECTOR).text((percentGrade*100).toFixed(2) + "%");
     $(LETTER_GRADE_SELECTOR).text(letterGrade);   
 }
-
