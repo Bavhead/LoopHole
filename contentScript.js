@@ -9,7 +9,7 @@ const IS_WEIGHTED_SELECTOR = "#container_content > div.content_margin > table:nt
 const IS_WEIGHTED = $(IS_WEIGHTED_SELECTOR).text() == "Weight:";
 
 
-const NEW_ASSIGNMENT_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody';
+const NEW_ASSIGNMENT_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(1)';
 const CATEGORIES_CSS_PATH = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_right > div.module:eq(1) > div.module_content > table > tbody > tr:nth-child(n+2)';
 
 var categories = {};
@@ -71,7 +71,7 @@ function setCategories(){
 }
 
 
-var name = `
+var name1 = `
 <tr>
 
 <td>
@@ -93,10 +93,51 @@ var name = `
 <br>
 </td>
 <td nowrap="">
-    <div> <input type="number" id="your_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
+    <div>
+        Score:
+
+    </div>
+    <div> <input type="number" name="user_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
         / 
-    <input type="number" id="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> =
-    %
+    <input type="number" name="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> 
+    
+</td>
+
+<td class="list_text">
+    <div style="width: 125px;"> </div>
+</td> 
+
+</tr> `;
+var name2 = `
+<tr class = "highlight">
+
+<td>
+    <div class="float_l padding_r5" style="min-width: 105px;"> </div>
+
+    <select id="assignment_categories">
+        ${getOptions()}
+    </select>
+    
+    <br> 
+        <input type="text" id="assignment" placeholder="Assignment Name"> </input>
+    </div>
+</td>
+
+<td style="width:100%;"> </td>
+
+<td>
+    ${getDate()}
+<br>
+</td>
+<td nowrap="">
+    <div>
+        Score:
+
+    </div>
+    <div> <input type="number" name="user_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
+        / 
+    <input type="number" name="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> 
+    
 </td>
 
 <td class="list_text">
@@ -309,12 +350,13 @@ function createFinalCalculatorButton(location){
     addFinalCalculator.css('float', 'left');
     $(location).prepend(addFinalCalculator);
 }
-var tempy = '#container_content > div > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(2) > td:nth-child(4) > div';
+
 function createEditableAssignments(path) {
-    var originalScores = getOriginalScores($(path).text());
+    var originalScores = getOriginalScores(path);
     var userScore = originalScores[0];
     var maxScore = originalScores[1];
     if (shouldBeEdited){
+        
         $(path).append('\
             <form>\
             <input type="number" name="user_score" style="width: 50px;" min="0"> /\
@@ -322,20 +364,18 @@ function createEditableAssignments(path) {
             <div class="userscores"> </div>\
             </form>'
         );
-        $(path).prepend('\
-            <b> Original Score: '
-            
-        );
+        $(path).prepend(`<b>Original:</b>`);
     }
     $(path).find('input[name="user_score"]').val(parseFloat(userScore));
-    $(path).find('input[name="user_score"]').text(userScore);
+
 
     $(path).find('input[name="max_score"]').val(parseFloat(maxScore));
-    $(path).find('input[name="max_score"]').text(maxScore);
+
 }
 
 function getOriginalScores(path)
 {
+    path = $(path).text();
     if(path == null){
         return ["0", "0"];
     }
@@ -356,11 +396,20 @@ function getOriginalScores(path)
 
 function updateAssignments(){
     $(ASSIGNMENT_TABLE_SELECTOR +' > tr').each(function(){
-        var earnedPts = parseFloat($(this).find("td:nth-child(4) > div > input:nth-child(1)").val());
-        var possPts = parseFloat($(this).find("td:nth-child(4) > div > input:nth-child(2)").val());
- 
+        var earnedPts = $(this).find("td:nth-child(4) > form > input[type=number]:nth-child(1)").val();
+        var possPts = $(this).find("td:nth-child(4) > form > input[type=number]:nth-child(2)").val();
         var category = $(this).find("td:nth-child(1) > select").val();
- 
+        
+        if (typeof category == "undefined"){
+            category = $(this).find('td:nth-child(1) > div').contents().get(0).nodeValue;
+        }
+        if (typeof earnedPts == "undefined"){
+            earnedPts = $(this).find("input[name='user_score']").val();
+        }
+        if (typeof possPts == "undefined"){
+            possPts = $(this).find("input[name='max_score']").val();
+        }
+        var category = category.trim();
         if (categoriesNames.indexOf(category) != -1){
             earnedPts = parseFloat(earnedPts);
             possPts = parseFloat(possPts);
@@ -376,7 +425,6 @@ function updateAssignments(){
     });
 }
 
-
 //////////////////
 createFinalCalculatorButton(ADD_ASSIGNMENT_SELECTOR);
 createAddAssignmentButton(ADD_ASSIGNMENT_SELECTOR);
@@ -386,20 +434,23 @@ $(ASSIGNMENT_SCORES_SELECTOR).each(function() {
 shouldBeEdited = !shouldBeEdited;
 
 document.getElementById("add_assignment").onclick = (event) => {
-    document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML = name + document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML;
-    numNewAssignments++;
-    $(ASSIGNMENT_SCORES_SELECTOR).each(function() {
-        createEditableAssignments($(this));
-    });
+   // document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML = name + document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML;
+  
+   if (numNewAssignments % 2 == 0){
+        $(name1).insertBefore(NEW_ASSIGNMENT_SELECTOR);
+   }else {
+        $(name2).insertBefore(NEW_ASSIGNMENT_SELECTOR);
+   }
+   numNewAssignments++;
+   
 }
 
 document.onchange = (event) => {
-    categories = {};
-    categoriesNames = [];
-    categoriesEarned = {};
-    categoriesPoss = {};
+    setCategories();
     updateAssignments();
     calcGrade();
     calcLetterGrade();
-    console.log(percentGrade);
+    $(PERCENT_GRADE_SELECTOR).text((percentGrade*100).toFixed(2) + "%");
+    $(LETTER_GRADE_SELECTOR).text(letterGrade);   
 }
+
