@@ -1,11 +1,9 @@
-@import url('https://fonts.googleapis.com/css?family=Mukta&display=swap');
- 
-#add_assignment {    
+ #add_assignment {    
     border:0px;
     color:#FFF;
     background-color:#282936;
     border-radius: 1.2rem;
-    font-family: 'Mukta';
+    font-family: 'Arial';
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 2.5px;
@@ -16,7 +14,7 @@
     color:#FFF;
     background-color:#282936;
     border-radius: 1.2rem;
-    font-family: 'Mukta';
+    font-family: 'Arial';
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 2.5px;

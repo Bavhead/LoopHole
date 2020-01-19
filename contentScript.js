@@ -1,6 +1,6 @@
 const ASSIGNMENT_TABLE_SELECTOR = "#container_content > div > table:nth-child(6) > tbody > tr > td.home_left > table > tbody";
 const ADD_ASSIGNMENT_SELECTOR = '#container_content > div > div.content_spacing_sm';
-const ASSIGNMENT_TABLE_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)';
+const ASSIGNMENT_SCORES_SELECTOR = '#container_content > div.content_margin > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr > td:nth-child(4)';
 const PERCENT_GRADE_SELECTOR = "#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(4)";
 const LETTER_GRADE_SELECTOR = "#container_content > div.content_margin > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(1) > b:nth-child(2)";
 
@@ -37,6 +37,8 @@ var originalGrade = 0;
 var percentGradeAfterFinal = 0;
 var finalGradeForTarget = 0;
 var numNewAssignments = 0;
+var shouldBeEdited = true;
+
 
 // Need to be called at this point
 setCategories();
@@ -91,9 +93,9 @@ var name = `
 <br>
 </td>
 <td nowrap="">
-    <div> <input type="text" id="your_score" placeholder="90" maxlength="5" class="userscores"> </input> 
+    <div> <input type="number" id="your_score" placeholder="90" maxlength="5" class="userscores" min="0"> </input> 
         / 
-    <input type="text" id="max_score" placeholder="100" maxlength="5" class="userscores"> </input> </div> =
+    <input type="number" id="max_score" placeholder="100" maxlength="5" class="userscores" min="0"> </input> </div> =
     %
 </td>
 
@@ -303,28 +305,101 @@ function createFinalCalculatorButton(location){
                                                 value: 'Final Calculator',
                                                 width: '116px',
                                                 height: '28.8px',
-                                              });
+                                            });
     addFinalCalculator.css('float', 'left');
     $(location).prepend(addFinalCalculator);
 }
+var tempy = '#container_content > div > table:nth-child(6) > tbody > tr > td.home_left > table > tbody > tr:nth-child(2) > td:nth-child(4) > div';
+function createEditableAssignments(path) {
+    var originalScores = getOriginalScores($(path).text());
+    var userScore = originalScores[0];
+    var maxScore = originalScores[1];
+    if (shouldBeEdited){
+        $(path).append('\
+            <form>\
+            <input type="number" name="user_score" style="width: 50px;" min="0"> /\
+            <input type="number" name="max_score" style="width: 50px;" min="0"> \
+            <div class="userscores"> </div>\
+            </form>'
+        );
+        $(path).prepend('\
+            <b> Original Score: '
+            
+        );
+    }
+    $(path).find('input[name="user_score"]').val(parseFloat(userScore));
+    $(path).find('input[name="user_score"]').text(userScore);
 
-function createEditableAssignments() {
-
+    $(path).find('input[name="max_score"]').val(parseFloat(maxScore));
+    $(path).find('input[name="max_score"]').text(maxScore);
 }
+
+function getOriginalScores(path)
+{
+    if(path == null){
+        return ["0", "0"];
+    }
+
+    var grade1 = path.match(/([0-9]|[" "]|[.])+((\/))/g);
+    if(grade1 == null){
+        return ["0", "0"];
+    }
+    grade1 = grade1[0];
+    var actual = grade1.substring(0, grade1.length-2);
+
+    var grade2 = path.match(/((\/))+([0-9]|[" "]|[.])*/g);
+    grade2 = grade2[0];
+    var max = grade2.substring(2, grade2.length-1);
+
+    return [actual, max];
+}
+
+function updateAssignments(){
+    $(ASSIGNMENT_TABLE_SELECTOR +' > tr').each(function(){
+        var earnedPts = parseFloat($(this).find("td:nth-child(4) > div > input:nth-child(1)").val());
+        var possPts = parseFloat($(this).find("td:nth-child(4) > div > input:nth-child(2)").val());
+ 
+        var category = $(this).find("td:nth-child(1) > select").val();
+ 
+        if (categoriesNames.indexOf(category) != -1){
+            earnedPts = parseFloat(earnedPts);
+            possPts = parseFloat(possPts);
+            if(isNaN(possPts)){
+                possPts = 0;
+            }
+            if(isNaN(earnedPts)){
+                earnedPts = 0;
+            }
+            categoriesEarned[category].push(earnedPts);
+            categoriesPoss[category].push(possPts);
+        }
+    });
+}
+
 
 //////////////////
 createFinalCalculatorButton(ADD_ASSIGNMENT_SELECTOR);
 createAddAssignmentButton(ADD_ASSIGNMENT_SELECTOR);
-
+$(ASSIGNMENT_SCORES_SELECTOR).each(function() {
+    createEditableAssignments($(this));
+});
+shouldBeEdited = !shouldBeEdited;
 
 document.getElementById("add_assignment").onclick = (event) => {
     document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML = name + document.querySelector(NEW_ASSIGNMENT_SELECTOR).innerHTML;
     numNewAssignments++;
+    $(ASSIGNMENT_SCORES_SELECTOR).each(function() {
+        createEditableAssignments($(this));
+    });
 }
 
 document.onchange = (event) => {
-    for (var i = 0; i < numNewAssignments; i++)
-    {
-        console.log(addAssignment(category, earnedPts, possPts));
-    }
+    categories = {};
+    categoriesNames = [];
+    categoriesEarned = {};
+    categoriesPoss = {};
+    updateAssignments();
+    calcGrade();
+    calcLetterGrade();
+    console.log(percentGrade);
 }
