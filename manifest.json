@@ -1,0 +1,19 @@
+{
+  "name": "Extended",
+  "version": "1.0",
+  "description": "Edit your grades to see what you need to do.",
+  "content_scripts": [
+    {
+      "matches": ["https://*.schoolloop.com/progress_report/*"],
+      "js": ["jquery-3.4.1.min.js", "contentScript.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "permissions": [
+    "activeTab"
+  ],
+  "web_accessible_resources": [
+    "assignment.html"
+  ],
+  "manifest_version": 2
+}
