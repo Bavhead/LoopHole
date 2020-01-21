@@ -496,8 +496,8 @@ document.onchange = (event) => {
     setCategories();
     updateAssignments();
     calcGrade();
-    calcLetterGrade();
     finalC();
+    calcLetterGrade();
     $(PERCENT_GRADE_SELECTOR).text((percentGrade*100).toFixed(2) + "%");
     $(LETTER_GRADE_SELECTOR).text(letterGrade);   
 }
