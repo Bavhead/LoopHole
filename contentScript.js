@@ -1,4 +1,4 @@
-// Created by Shamith Pasula, Bhavya Gupta, Kush Goswami, Archit Pimple
+// Created by Shamith Pasula, Bhavya Gupta, Kush Goswami, Archit Pimple 
 
 const ASSIGNMENT_TABLE_SELECTOR = "#container_content > div > table:nth-child(6) > tbody > tr > td.home_left > table > tbody";
 const ADD_ASSIGNMENT_SELECTOR = '#container_content > div > div.content_spacing_sm';
