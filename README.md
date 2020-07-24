@@ -1,1 +1,2 @@
 # LoopHole
+A Google Chrome extension that lets users edit their grades on the most widely used student-teacher interface in California, Schoolloop. Through this extension, students have the ability to temporarily change their grades by editing current assignments, adding new ones, or deleting previous ones. Also contains other features including a final grade calculator to see what you need on your finals and an easy-to-use UI.
